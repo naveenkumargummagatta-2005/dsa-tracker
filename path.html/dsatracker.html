@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LeetCode DSA Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #f5f0e8;
+      --surface: #ffffff;
+      --border: #e0d8cc;
+      --text: #1a1a1a;
+      --muted: #7a7060;
+      --easy: #22c55e;
+      --medium: #f59e0b;
+      --hard: #ef4444;
+      --tag-bg: #1a1a1a;
+      --tag-text: #f5f0e8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+    }
+    header {
+      background: var(--text);
+      color: var(--bg);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+    }
+    header span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      opacity: 0.6;
+    }
+    .controls {
+      padding: 1.5rem 2rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    input[type="text"] {
+      flex: 1;
+      min-width: 180px;
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      background: var(--bg);
+      color: var(--text);
+    }
+    select {
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+    }
+    button {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.85; }
+    .btn-add { background: var(--text); color: var(--bg); }
+    .btn-clear { background: var(--border); color: var(--muted); }
+    .stats-bar {
+      display: flex;
+      gap: 1.5rem;
+      padding: 1rem 2rem;
+      font-size: 0.85rem;
+      font-family: 'JetBrains Mono', monospace;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .stat { display: flex; align-items: center; gap: 0.4rem; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-easy { background: var(--easy); }
+    .dot-medium { background: var(--medium); }
+    .dot-hard { background: var(--hard); }
+    .dot-solved { background: var(--text); }
+    .table-wrap { padding: 1.5rem 2rem; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      padding: 0.5rem 0.75rem;
+      border-bottom: 2px solid var(--border);
+    }
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+    tr:hover td { background: #f0ebe0; }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .easy { background: #dcfce7; color: #16a34a; }
+    .medium { background: #fef3c7; color: #d97706; }
+    .hard { background: #fee2e2; color: #dc2626; }
+    .tag {
+      display: inline-block;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      margin: 2px;
+    }
+    .solved-check {
+      cursor: pointer;
+      font-size: 1.1rem;
+      user-select: none;
+    }
+    .btn-delete {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.2rem 0.6rem;
+      font-size: 0.75rem;
+      border-radius: 4px;
+    }
+    .link-btn {
+      background: none;
+      border: none;
+      color: #2563eb;
+      font-size: 0.8rem;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+    }
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .modal h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+    }
+    .form-row { display: flex; flex-direction: column; gap: 0.3rem; }
+    .form-row label {
+      font-size: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--muted);
+    }
+    .form-row input, .form-row select, .form-row textarea {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+    }
+    .form-row textarea { resize: vertical; min-height: 80px; }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+    .progress-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 2rem 0;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--text);
+      transition: width 0.4s ease;
+    }
+    @media (max-width: 600px) {
+      .controls { flex-direction: column; }
+      .table-wrap { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>// DSA Tracker</h1>
+  <span id="headerCount">0 problems</span>
+</header>
+
+<div class="controls">
+  <input type="text" id="searchInput" placeholder="Search problems..." oninput="render()"/>
+  <select id="filterTopic" onchange="render()">
+    <option value="">All Topics</option>
+    <option>Array</option><option>String</option><option>Linked List</option>
+    <option>Tree</option><option>Graph</option><option>DP</option>
+    <option>Stack</option><option>Queue</option><option>Hashing</option>
+    <option>Two Pointers</option><option>Binary Search</option><option>Recursion</option>
+  </select>
+  <select id="filterDiff" onchange="render()">
+    <option value="">All Levels</option>
+    <option>Easy</option><option>Medium</option><option>Hard</option>
+  </select>
+  <select id="filterStatus" onchange="render()">
+    <option value="">All Status</option>
+    <option value="true">Solved</option>
+    <option value="false">Unsolved</option>
+  </select>
+  <button class="btn-add" onclick="openModal()">+ Add Problem</button>
+  <button class="btn-clear" onclick="clearFilters()">Clear</button>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Problem</th>
+        <th>Topic</th>
+        <th>Difficulty</th>
+        <th>Status</th>
+        <th>Notes</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<!-- Add Problem Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>Add Problem</h2>
+    <div class="form-row">
+      <label>Problem Name</label>
+      <input type="text" id="fName" placeholder="e.g. Two Sum"/>
+    </div>
+    <div class="form-row">
+      <label>LeetCode URL</label>
+      <input type="text" id="fUrl" placeholder="https://leetcode.com/problems/..."/>
+    </div>
+    <div class="form-row">
+      <label>Topic</label>
+      <select id="fTopic">
+        <option>Array</option><option>String</option><option>Linked List</option>
+        <option>Tree</option><option>Graph</option><option>DP</option>
+        <option>Stack</option><option>Queue</option><option>Hashing</option>
+        <option>Two Pointers</option><option>Binary Search</option><option>Recursion</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Difficulty</label>
+      <select id="fDiff">
+        <option>Easy</option><option>Medium</option><option>Hard</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Notes / Approach</label>
+      <textarea id="fNotes" placeholder="e.g. Use HashMap for O(n) solution..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-clear" onclick="closeModal()">Cancel</button>
+      <button class="btn-add" onclick="addProblem()">Add</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'dsa_tracker_v1';
+
+  const defaultProblems = [
+    { id:1, name:'Two Sum', topic:'Array', difficulty:'Easy', solved:true, url:'https://leetcode.com/problems/two-sum/', notes:'Use HashMap. O(n) time.' },
+    { id:2, name:'Reverse Linked List', topic:'Linked List', difficulty:'Easy', solved:true, url:'https://leetcode.com/problems/reverse-linked-list/', notes:'Iterative with prev pointer.' },
+    { id:3, name:'Binary Search', topic:'Binary Search', difficulty:'Easy', solved:true, url:'https://leetcode.com/problems/binary-search/', notes:'lo/hi/mid pattern.' },
+    { id:4, name:'Valid Parentheses', topic:'Stack', difficulty:'Easy', solved:true, url:'https://leetcode.com/problems/valid-parentheses/', notes:'Stack-based matching.' },
+    { id:5, name:'Maximum Subarray', topic:'Array', difficulty:'Medium', solved:true, url:'https://leetcode.com/problems/maximum-subarray/', notes:"Kadane's algorithm." },
+    { id:6, name:'Longest Substring Without Repeating Characters', topic:'String', difficulty:'Medium', solved:true, url:'https://leetcode.com/problems/longest-substring-without-repeating-characters/', notes:'Sliding window + set.' },
+    { id:7, name:'3Sum', topic:'Two Pointers', difficulty:'Medium', solved:false, url:'https://leetcode.com/problems/3sum/', notes:'Sort + two pointers.' },
+    { id:8, name:'Number of Islands', topic:'Graph', difficulty:'Medium', solved:true, url:'https://leetcode.com/problems/number-of-islands/', notes:'BFS/DFS flood fill.' },
+    { id:9, name:'Coin Change', topic:'DP', difficulty:'Medium', solved:false, url:'https://leetcode.com/problems/coin-change/', notes:'Bottom-up DP. dp[i] = min coins.' },
+    { id:10, name:'Binary Tree Level Order Traversal', topic:'Tree', difficulty:'Medium', solved:true, url:'https://leetcode.com/problems/binary-tree-level-order-traversal/', notes:'BFS with queue.' },
+    { id:11, name:'Merge Intervals', topic:'Array', difficulty:'Medium', solved:true, url:'https://leetcode.com/problems/merge-intervals/', notes:'Sort by start, merge overlapping.' },
+    { id:12, name:'Trapping Rain Water', topic:'Two Pointers', difficulty:'Hard', solved:false, url:'https://leetcode.com/problems/trapping-rain-water/', notes:'Two pointer or prefix max arrays.' },
+    { id:13, name:'Word Break', topic:'DP', difficulty:'Medium', solved:false, url:'https://leetcode.com/problems/word-break/', notes:'DP with boolean array.' },
+    { id:14, name:'LRU Cache', topic:'Hashing', difficulty:'Medium', solved:false, url:'https://leetcode.com/problems/lru-cache/', notes:'HashMap + Doubly Linked List.' },
+    { id:15, name:'Median of Two Sorted Arrays', topic:'Binary Search', difficulty:'Hard', solved:false, url:'https://leetcode.com/problems/median-of-two-sorted-arrays/', notes:'Binary search on smaller array.' },
+    { id:16, name:'Climbing Stairs', topic:'DP', difficulty:'Easy', solved:true, url:'https://leetcode.com/problems/climbing-stairs/', notes:'Fibonacci pattern.' },
+    { id:17, name:'Product of Array Except Self', topic:'Array', difficulty:'Medium', solved:true, url:'https://leetcode.com/problems/product-of-array-except-self/', notes:'Prefix and suffix pass.' },
+    { id:18, name:'Serialize and Deserialize Binary Tree', topic:'Tree', difficulty:'Hard', solved:false, url:'https://leetcode.com/problems/serialize-and-deserialize-binary-tree/', notes:'BFS with null markers.' },
+    { id:19, name:'Find Median from Data Stream', topic:'Hashing', difficulty:'Hard', solved:false, url:'https://leetcode.com/problems/find-median-from-data-stream/', notes:'Two heaps: max-heap + min-heap.' },
+    { id:20, name:'Subsets', topic:'Recursion', difficulty:'Medium', solved:true, url:'https://leetcode.com/problems/subsets/', notes:'Backtracking.' },
+    { id:21, name:'Graph Valid Tree', topic:'Graph', difficulty:'Medium', solved:false, url:'https://leetcode.com/problems/graph-valid-tree/', notes:'Union-Find or DFS cycle check.' },
+    { id:22, name:'Longest Common Subsequence', topic:'DP', difficulty:'Medium', solved:true, url:'https://leetcode.com/problems/longest-common-subsequence/', notes:'2D DP table.' },
+    { id:23, name:'Min Stack', topic:'Stack', difficulty:'Easy', solved:true, url:'https://leetcode.com/problems/min-stack/', notes:'Auxiliary stack for min.' },
+    { id:24, name:'Course Schedule', topic:'Graph', difficulty:'Medium', solved:false, url:'https://leetcode.com/problems/course-schedule/', notes:'Topological sort / cycle detect.' },
+    { id:25, name:'Container With Most Water', topic:'Two Pointers', difficulty:'Medium', solved:true, url:'https://leetcode.com/problems/container-with-most-water/', notes:'Greedy two pointer shrink.' },
+    { id:26, name:'Palindromic Substrings', topic:'String', difficulty:'Medium', solved:false, url:'https://leetcode.com/problems/palindromic-substrings/', notes:'Expand around center.' },
+    { id:27, name:'Jump Game', topic:'Array', difficulty:'Medium', solved:true, url:'https://leetcode.com/problems/jump-game/', notes:'Greedy max reach.' },
+    { id:28, name:'Rotate Image', topic:'Array', difficulty:'Medium', solved:false, url:'https://leetcode.com/problems/rotate-image/', notes:'Transpose + reverse rows.' },
+    { id:29, name:'Pacific Atlantic Water Flow', topic:'Graph', difficulty:'Medium', solved:false, url:'https://leetcode.com/problems/pacific-atlantic-water-flow/', notes:'BFS from borders.' },
+    { id:30, name:'Edit Distance', topic:'DP', difficulty:'Hard', solved:false, url:'https://leetcode.com/problems/edit-distance/', notes:'Classic 2D DP levenshtein.' },
+  ];
+
+  let problems = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultProblems;
+  let nextId = Math.max(...problems.map(p => p.id)) + 1;
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(problems));
+  }
+
+  function getFiltered() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const topic = document.getElementById('filterTopic').value;
+    const diff = document.getElementById('filterDiff').value;
+    const status = document.getElementById('filterStatus').value;
+    return problems.filter(p => {
+      if (search && !p.name.toLowerCase().includes(search) && !p.topic.toLowerCase().includes(search)) return false;
+      if (topic && p.topic !== topic) return false;
+      if (diff && p.difficulty !== diff) return false;
+      if (status !== '' && String(p.solved) !== status) return false;
+      return true;
+    });
+  }
+
+  function render() {
+    const filtered = getFiltered();
+    const solved = problems.filter(p => p.solved).length;
+    const easy = problems.filter(p => p.difficulty === 'Easy').length;
+    const med = problems.filter(p => p.difficulty === 'Medium').length;
+    const hard = problems.filter(p => p.difficulty === 'Hard').length;
+
+    document.getElementById('headerCount').textContent = `${problems.length} problems`;
+    document.getElementById('progressFill').style.width = `${Math.round((solved/problems.length)*100)}%`;
+    document.getElementById('statsBar').innerHTML = `
+      <span class="stat"><span class="dot dot-solved"></span> ${solved}/${problems.length} Solved</span>
+      <span class="stat"><span class="dot dot-easy"></span> Easy: ${easy}</span>
+      <span class="stat"><span class="dot dot-medium"></span> Medium: ${med}</span>
+      <span class="stat"><span class="dot dot-hard"></span> Hard: ${hard}</span>
+      <span class="stat" style="margin-left:auto; color:var(--muted);">Showing ${filtered.length}</span>
+    `;
+
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = filtered.map((p, i) => `
+      <tr>
+        <td style="color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:0.8rem;">${i+1}</td>
+        <td>
+          ${p.url
+            ? `<button class="link-btn" onclick="window.open('${p.url}','_blank')">${p.name}</button>`
+            : p.name}
+        </td>
+        <td><span class="tag">${p.topic}</span></td>
+        <td><span class="badge ${p.difficulty.toLowerCase()}">${p.difficulty}</span></td>
+        <td>
+          <span class="solved-check" onclick="toggleSolved(${p.id})" title="Toggle solved">
+            ${p.solved ? '✅' : '⬜'}
+          </span>
+        </td>
+        <td style="font-size:0.8rem; color:var(--muted); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${p.notes || ''}">${p.notes || '—'}</td>
+        <td><button class="btn-delete" onclick="deleteProblem(${p.id})">✕</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function toggleSolved(id) {
+    problems = problems.map(p => p.id === id ? {...p, solved: !p.solved} : p);
+    save(); render();
+  }
+
+  function deleteProblem(id) {
+    if (confirm('Delete this problem?')) {
+      problems = problems.filter(p => p.id !== id);
+      save(); render();
+    }
+  }
+
+  function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+
+  function addProblem() {
+    const name = document.getElementById('fName').value.trim();
+    if (!name) { alert('Please enter a problem name.'); return; }
+    problems.push({
+      id: nextId++,
+      name,
+      url: document.getElementById('fUrl').value.trim(),
+      topic: document.getElementById('fTopic').value,
+      difficulty: document.getElementById('fDiff').value,
+      solved: false,
+      notes: document.getElementById('fNotes').value.trim(),
+    });
+    save(); render(); closeModal();
+    document.getElementById('fName').value = '';
+    document.getElementById('fUrl').value = '';
+    document.getElementById('fNotes').value = '';
+  }
+
+  function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('filterTopic').value = '';
+    document.getElementById('filterDiff').value = '';
+    document.getElementById('filterStatus').value = '';
+    render();
+  }
+
+  document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  render();
+</script>
+</body>
+</html>
